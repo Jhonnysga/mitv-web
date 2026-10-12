@@ -121,8 +121,9 @@ const MiTVApi = (() => {
     if (!payload || typeof payload !== 'object') {
       return typeof payload === 'string' && payload.length > 20 ? payload : null;
     }
+    // Verificado en vivo 12/10/2026: el login exitoso devuelve el token en `sessionId`.
     return payload.token || payload.accessToken || payload.access_token ||
-           payload.sessionToken || payload.jwt || payload.idToken || null;
+           payload.sessionToken || payload.sessionId || payload.jwt || payload.idToken || null;
   }
 
   async function call(method, path, { body = null, query = null, auth = true, retry = true } = {}) {
