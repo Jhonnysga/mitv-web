@@ -13,6 +13,7 @@ const MiTVApi = (() => {
   const LS_SESSION = 'mitv_session_v1';
   const LS_CREDS = 'mitv_creds_v1';
   const LS_DEVICE = 'mitv_device_id_v1';
+  const LS_LAST_USER = 'mitv_last_user_v1';
 
   let session = null;
   try { session = JSON.parse(localStorage.getItem(LS_SESSION) || 'null'); } catch { session = null; }
@@ -52,6 +53,14 @@ const MiTVApi = (() => {
     try { return JSON.parse(localStorage.getItem(LS_CREDS) || 'null'); } catch { return null; }
   }
   function clearCreds() { try { localStorage.removeItem(LS_CREDS); } catch { /* noop */ } }
+  // Último usuario escrito (solo el usuario, nunca la clave): se pre-llena
+  // en el login aunque "recuérdame" esté desactivado.
+  function saveLastUser(email) {
+    try { if (email) localStorage.setItem(LS_LAST_USER, email); } catch { /* noop */ }
+  }
+  function getLastUser() {
+    try { return localStorage.getItem(LS_LAST_USER) || ''; } catch { return ''; }
+  }
 
   function deviceId() {
     let id = null;
@@ -154,6 +163,7 @@ const MiTVApi = (() => {
 
   /* ---------- autenticación ---------- */
   async function login(email, password, remember) {
+    saveLastUser(email);
     const payload = await rawRequest('POST', AUTH_URL, {
       body: { email, password, manualProfileManagement: true, model: 'MiTV Web 1.0' },
       headers: {
@@ -311,7 +321,7 @@ const MiTVApi = (() => {
 
   return {
     ApiError, isGeoBlock, GEO_MSG,
-    signedIn, getSession, login, logout, getCreds,
+    signedIn, getSession, login, logout, getCreds, getLastUser,
     deviceId, rewriteStreamUrl, parseStreamInfo,
     getChannels, getChannelCategories, getChannelStream,
     getVods, getVodCategories, getVod, getVodStream,

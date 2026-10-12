@@ -28,11 +28,14 @@
     <form id="login-form" autocomplete="on">
       <label class="field">
         <span>Usuario o correo</span>
-        <input id="login-user" type="text" name="username" autocomplete="username" required placeholder="Tu usuario de TV">
+        <input id="login-user" type="text" name="username" autocomplete="username"
+               autocapitalize="off" autocorrect="off" spellcheck="false"
+               enterkeyhint="next" required placeholder="Tu usuario de TV">
       </label>
       <label class="field">
         <span>Contraseña</span>
-        <input id="login-pass" type="password" name="password" autocomplete="current-password" required placeholder="••••••••">
+        <input id="login-pass" type="password" name="password" autocomplete="current-password"
+               enterkeyhint="go" required placeholder="••••••••">
       </label>
       <label class="check">
         <input id="login-remember" type="checkbox" checked>
@@ -42,6 +45,19 @@
       <button id="login-btn" type="submit" class="btn primary">Entrar</button>
     </form>
     <p class="login-note">Tus datos se guardan solo en este navegador y se envían únicamente al servicio de TV. Servicio disponible solo en Venezuela.</p>
+  </div>
+</div>
+
+<!-- ============ CARGANDO (validando sesión guardada) ============ -->
+<div id="view-loading" class="view login-view hidden" aria-hidden="true">
+  <div class="login-card" style="text-align:center">
+    <div class="brand" style="justify-content:center">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="44" height="44"><rect x="2" y="2" width="44" height="44" rx="12" fill="url(#lg)"/><path d="M19 15.5v17l14-8.5z" fill="#0a0d16"/></svg>
+      </span>
+      <span class="brand-name">MiTV</span>
+    </div>
+    <p class="login-sub">Abriendo tu sesión…</p>
   </div>
 </div>
 

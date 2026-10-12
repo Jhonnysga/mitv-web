@@ -90,8 +90,15 @@
 
   /* ---------- vistas ---------- */
   function showView(name) {
-    for (const v of ['view-login', 'app']) $(v).classList.add('hidden');
-    if (name === 'login') { $('view-login').classList.remove('hidden'); return; }
+    for (const v of ['view-login', 'view-loading', 'app']) $(v).classList.add('hidden');
+    if (name === 'login') {
+      $('view-login').classList.remove('hidden');
+      // El campo usuario recibe el foco de inmediato para empezar a escribir
+      const u = $('login-user');
+      if (u) u.focus({ preventScroll: true });
+      return;
+    }
+    if (name === 'loading') { $('view-loading').classList.remove('hidden'); return; }
     $('app').classList.remove('hidden');
     for (const s of ['view-tv', 'view-movies', 'view-series', 'view-catchup']) {
       $(s).classList.toggle('hidden', s !== 'view-' + name);
@@ -779,8 +786,16 @@
     initSearch();
     initTabs();
     const creds = MiTVApi.getCreds();
-    if (creds) { $('login-user').value = creds.email || ''; $('login-pass').value = creds.password || ''; }
+    if (creds && creds.email) {
+      $('login-user').value = creds.email;
+      $('login-pass').value = creds.password || '';
+    } else {
+      // Pre-llenar el último usuario escrito (sin la clave)
+      $('login-user').value = MiTVApi.getLastUser();
+    }
     if (MiTVApi.signedIn()) {
+      // Hay sesión guardada: validar sin mostrar el login de por medio
+      showView('loading');
       try {
         await MiTVApi.get('/v3/account');
         enterApp();
