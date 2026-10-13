@@ -80,6 +80,9 @@ const MiTVApi = (() => {
     try {
       res = await fetch(url, {
         method,
+        // La API autentica por cookie de sesión: el preflight CORS no permite
+        // el header Authorization; 'include' envía y guarda las cookies.
+        credentials: 'include',
         headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
         body: body == null ? undefined : JSON.stringify(body),
       });
@@ -139,7 +142,9 @@ const MiTVApi = (() => {
     const headers = {};
     if (auth) {
       if (!session || !session.token) throw new ApiError('NO_SESSION', 'Sesión no iniciada');
-      headers['Authorization'] = 'Bearer ' + session.token;
+      // Sin header Authorization: el preflight CORS del API no lo permite
+      // (verificado 12/10/2026) y el navegador bloquea la petición.
+      // La sesión viaja en la cookie (credentials: 'include' en rawRequest).
     }
     try {
       return await rawRequest(method, url, { body, headers });
