@@ -77,18 +77,27 @@ const MiTVApi = (() => {
 
   async function rawRequest(method, url, { body = null, headers = {} } = {}) {
     let res;
+    // Tiempo límite: una petición colgada no debe congelar la app.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 25000);
     try {
       res = await fetch(url, {
         method,
         // La API autentica por cookie de sesión: el preflight CORS no permite
         // el header Authorization; 'include' envía y guarda las cookies.
         credentials: 'include',
+        signal: ctrl.signal,
         headers: Object.assign({ 'Content-Type': 'application/json' }, headers),
         body: body == null ? undefined : JSON.stringify(body),
       });
     } catch (e) {
-      throw new ApiError('NETWORK', 'Sin conexión con el servidor. Revisa tu internet.');
+      clearTimeout(timer);
+      const msg = (e && e.name === 'AbortError')
+        ? 'El servidor no respondió a tiempo. Intenta de nuevo.'
+        : 'Sin conexión con el servidor. Revisa tu internet.';
+      throw new ApiError('NETWORK', msg);
     }
+    clearTimeout(timer);
     const text = await res.text();
     let json = null;
     try { json = text ? JSON.parse(text) : null; } catch { /* no-JSON */ }
